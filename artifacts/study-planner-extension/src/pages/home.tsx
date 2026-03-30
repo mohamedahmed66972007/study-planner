@@ -346,107 +346,13 @@ function SubjectCard({
 // ── timer display ──────────────────────────────────────────────────────────────
 
 function ActiveTimerDisplay({
-  subject,
   simpleTimer,
-  lessonTimer,
-  hasDistributed
 }: {
-  subject: Subject;
+  subject?: Subject;
   simpleTimer: { secondsLeft: number; progress: number };
-  lessonTimer: LessonTimerState;
-  hasDistributed: boolean;
+  lessonTimer?: LessonTimerState;
+  hasDistributed?: boolean;
 }) {
-  const lessons = subject.lessons || [];
-
-  if (hasDistributed && lessons.length > 0) {
-    const currentLesson = lessons[lessonTimer.currentLessonIndex];
-    const isLastLesson = lessonTimer.currentLessonIndex >= lessons.length - 1;
-    const allDone = lessonTimer.currentLessonSecondsLeft === 0 && isLastLesson;
-
-    return (
-      <div className="rounded-2xl bg-black/40 border border-white/5 overflow-hidden">
-        <div className="px-4 pt-3 pb-1 flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-primary animate-pulse shrink-0" />
-          <span className="text-xs text-muted-foreground font-medium">
-            الدرس الحالي ({lessonTimer.currentLessonIndex + 1}/{lessons.length})
-          </span>
-        </div>
-        <div className="px-4 pb-2">
-          <p className="text-sm font-bold text-white truncate">
-            {allDone ? "✓ انتهت جميع الدروس" : currentLesson?.name}
-          </p>
-        </div>
-
-        <div className="flex flex-col items-center justify-center py-4 relative">
-          <AnimatePresence mode="wait">
-            {allDone ? (
-              <motion.div
-                key="alldone"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="text-center"
-              >
-                <p className="text-3xl font-bold text-primary">🎉 أحسنت!</p>
-                <p className="text-xs text-muted-foreground mt-1">انتهت جميع الدروس</p>
-              </motion.div>
-            ) : lessonTimer.lessonFinished ? (
-              <motion.div
-                key="finished"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="text-center"
-              >
-                <p className="text-2xl font-bold text-primary">انتهى ✓</p>
-                <p className="text-xs text-muted-foreground mt-1">جاري الانتقال للدرس التالي...</p>
-              </motion.div>
-            ) : (
-              <motion.div
-                key={`lesson-${lessonTimer.currentLessonIndex}`}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="text-center"
-              >
-                <div className="text-4xl font-mono tracking-widest font-light text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
-                  {formatTimeMMSS(lessonTimer.currentLessonSecondsLeft)}
-                </div>
-                <div className="text-[10px] text-muted-foreground mt-1 uppercase tracking-widest">
-                  المتبقي للدرس
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        <div className="h-1 bg-white/5">
-          <motion.div
-            className="h-full bg-gradient-to-r from-primary to-accent"
-            animate={{
-              width:
-                lessonTimer.currentLessonTotalSeconds > 0
-                  ? `${((lessonTimer.currentLessonTotalSeconds - lessonTimer.currentLessonSecondsLeft) / lessonTimer.currentLessonTotalSeconds) * 100}%`
-                  : "0%"
-            }}
-            transition={{ duration: 0.5 }}
-          />
-        </div>
-
-        <div className="px-4 py-2.5 flex items-center justify-between text-xs text-muted-foreground">
-          <span>الإجمالي: {formatTimeMMSS(lessonTimer.overallSecondsLeft)}</span>
-          <span>{Math.round(lessonTimer.overallProgress)}%</span>
-        </div>
-
-        <div className="h-0.5 bg-white/5">
-          <motion.div
-            className="h-full bg-white/15"
-            animate={{ width: `${lessonTimer.overallProgress}%` }}
-            transition={{ duration: 0.5 }}
-          />
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="flex flex-col items-center justify-center py-4 bg-black/40 rounded-2xl border border-white/5 relative overflow-hidden">
       <div
