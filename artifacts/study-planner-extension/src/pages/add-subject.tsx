@@ -671,9 +671,9 @@ export default function AddSubject() {
               )}
             >
               <motion.div
-                animate={{ x: watchDistribute ? 0 : 24 }}
+                animate={{ x: watchDistribute ? 24 : 0 }}
                 transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                className="w-4 h-4 rounded-full bg-white absolute top-1 right-1"
+                className="w-4 h-4 rounded-full bg-white absolute top-1 left-1"
               />
             </button>
           </div>
