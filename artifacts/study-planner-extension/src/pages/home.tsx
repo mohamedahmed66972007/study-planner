@@ -120,6 +120,7 @@ function SubjectCard({
   const deleteMutation = useStudyDeleteSubject();
   const autoStartedRef = useRef(false);
   const autoCompleteRef = useRef(false);
+  const autoCompleteByTimerRef = useRef(false);
 
   const isActive = subject.status === "active";
   const isPending = subject.status === "pending";
@@ -160,6 +161,21 @@ function SubjectCard({
 
   const simpleTimer = useTimer(subject.id, totalDuration, isActive);
   const lessonTimer = useLessonTimer(subject.id, lessons, totalDuration, isActive);
+
+  // Auto-complete when countdown reaches zero
+  useEffect(() => {
+    if (
+      isActive &&
+      simpleTimer.secondsLeft === 0 &&
+      simpleTimer.progress >= 100 &&
+      !autoCompleteByTimerRef.current &&
+      !completeMutation.isPending
+    ) {
+      autoCompleteByTimerRef.current = true;
+      completeMutation.mutate({ id: subject.id });
+      onActivate(null);
+    }
+  }, [isActive, simpleTimer.secondsLeft, simpleTimer.progress, subject.id]);
 
   return (
     <motion.div
