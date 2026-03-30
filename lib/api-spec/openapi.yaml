@@ -1,0 +1,324 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: Study Planner API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: subjects
+    description: Study subjects
+  - name: lessons
+    description: Lessons management
+  - name: postponed
+    description: Postponed lessons
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /subjects:
+    get:
+      operationId: getSubjects
+      tags: [subjects]
+      summary: Get all subjects
+      responses:
+        "200":
+          description: List of subjects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Subject"
+    post:
+      operationId: createSubject
+      tags: [subjects]
+      summary: Create a new subject
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSubjectRequest"
+      responses:
+        "201":
+          description: Subject created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subject"
+
+  /subjects/{id}:
+    get:
+      operationId: getSubject
+      tags: [subjects]
+      summary: Get subject by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Subject found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subject"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteSubject
+      tags: [subjects]
+      summary: Delete a subject
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /subjects/{id}/start:
+    post:
+      operationId: startSubject
+      tags: [subjects]
+      summary: Start a subject session
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subject"
+
+  /subjects/{id}/complete:
+    post:
+      operationId: completeSubject
+      tags: [subjects]
+      summary: Complete a subject session and move incomplete lessons to postponed
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Completed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subject"
+
+  /lessons/{id}/toggle:
+    post:
+      operationId: toggleLesson
+      tags: [lessons]
+      summary: Toggle lesson completion
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Toggled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lesson"
+
+  /postponed:
+    get:
+      operationId: getPostponedLessons
+      tags: [postponed]
+      summary: Get all postponed lessons
+      responses:
+        "200":
+          description: List of postponed lessons
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PostponedLesson"
+
+  /postponed/{id}:
+    delete:
+      operationId: deletePostponedLesson
+      tags: [postponed]
+      summary: Delete a postponed lesson
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    Subject:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        date:
+          type: string
+        timeMode:
+          type: string
+          enum: [fixed, duration]
+        startTime:
+          type: string
+          nullable: true
+        endTime:
+          type: string
+          nullable: true
+        durationMinutes:
+          type: integer
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [pending, active, completed]
+        distributeTime:
+          type: boolean
+        lessons:
+          type: array
+          items:
+            $ref: "#/components/schemas/Lesson"
+        createdAt:
+          type: string
+      required:
+        - id
+        - name
+        - date
+        - timeMode
+        - status
+        - distributeTime
+        - lessons
+        - createdAt
+
+    CreateSubjectRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        date:
+          type: string
+        timeMode:
+          type: string
+          enum: [fixed, duration]
+        startTime:
+          type: string
+          nullable: true
+        endTime:
+          type: string
+          nullable: true
+        durationMinutes:
+          type: integer
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        distributeTime:
+          type: boolean
+        lessons:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              allocatedMinutes:
+                type: integer
+                nullable: true
+            required:
+              - name
+      required:
+        - name
+        - date
+        - timeMode
+        - distributeTime
+        - lessons
+
+    Lesson:
+      type: object
+      properties:
+        id:
+          type: integer
+        subjectId:
+          type: integer
+        name:
+          type: string
+        allocatedMinutes:
+          type: integer
+          nullable: true
+        completed:
+          type: boolean
+        order:
+          type: integer
+      required:
+        - id
+        - subjectId
+        - name
+        - completed
+        - order
+
+    PostponedLesson:
+      type: object
+      properties:
+        id:
+          type: integer
+        subjectName:
+          type: string
+        lessonName:
+          type: string
+        originalDate:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - subjectName
+        - lessonName
+        - originalDate
+        - createdAt

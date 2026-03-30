@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Study Planner Extension"
+version = "1.0.0"
+id = "artifacts/study-planner-extension"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 23656
+
+[services.development]
+run = "pnpm --filter @workspace/study-planner-extension run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/study-planner-extension", "run", "build" ]
+publicDir = "artifacts/study-planner-extension/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "23656"
+BASE_PATH = "/"
